@@ -30,6 +30,9 @@ jobs:
 
       - uses: actions/setup-python@v2
 
+      - name: change directory to mutable.cc
+        run: cd mutable.cc
+
       - name: Install Lektor
         run: |
           python -m pip install lektor
@@ -49,5 +52,5 @@ jobs:
         if: env.DEPLOY == 'true'
         run: lektor deploy -O '${{ env.OUTPUT }}' ghpages-https
         env:
-          LEKTOR_DEPLOY_USERNAME: lektor
+          LEKTOR_DEPLOY_USERNAME: peterwwillis
           LEKTOR_DEPLOY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
