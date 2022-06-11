@@ -93,9 +93,12 @@ WORKDIR /srv/jekyll
 
 COPY Gemfile Gemfile.lock 404.html about.markdown index.markdown _config.yml _posts /srv/jekyll/
 
-RUN bundle exec jekyll build -d ./public
+RUN bundle update \
+    && bundle exec jekyll build -d ./public
 
 VOLUME  /srv/jekyll
 
 EXPOSE 35729
 EXPOSE 4000
+
+CMD jekyll serve
