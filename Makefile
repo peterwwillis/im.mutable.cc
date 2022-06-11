@@ -1,27 +1,23 @@
 
-ifeq ($(WEBSITE),)
-$(error Error: pass WEBSITE variable with path to Lektor project)
-endif
+PROJECTDIR := mutable.cc
 
-WEBSITE_BASEDIR := $(shell dirname "$(WEBSITE)")
+ifeq ($(PROJECTDIR),)
+$(error Error: pass PROJECTDIR variable with path to Lektor project)
+endif
 
 DOCKER_IMAGE := mysite:latest
 
-# below maps '/app' to base directory of the website project dir
+# below maps '/app' to base directory of the PROJECTDIR project dir
 # to mimic how a CI system will be using these commands from a Git repo
 # after it's built and is running the custom Dockerfile.
-DOCKER_RUN := docker run --rm -it \
-			  	-u "$$(id -u):$$(id -g)" \
-				-v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
-				-v "$$(readlink -f "$(WEBSITE_BASEDIR)"):/app:Z"
-
+DOCKER_RUN := ./bin/lektor-in-docker "$(DOCKER_IMAGE)"
 
 
 help:
 	@echo "Environment variables:"
 	@echo "  DOCKER_IMAGE           The Docker image to use"
 	@echo "  DOCKER_RUN             The 'docker run' command to use"
-	@echo "  WEBSITE                The directory of your Lektor project website. Required"
+	@echo "  PROJECTDIR             The directory of your Lektor project"
 	@echo ""
 	@echo "Targets:"
 	@echo "  lektor-build"
@@ -31,23 +27,23 @@ help:
 	@echo "  docker-build"
 
 lektor-build:
-	cd "$(WEBSITE)" \
+	cd "$(PROJECTDIR)" \
 	&& lektor build -v -O ./public
 
 lektor-server:
-	cd "$(WEBSITE)" \
+	cd "$(PROJECTDIR)" \
 	&& lektor server -h 0.0.0.0
 
 docker-lektor-build: docker-build
-	$(DOCKER_RUN) -e WEBSITE $(DOCKER_IMAGE) \
+	$(DOCKER_RUN) \
 	    make lektor-build
 
 docker-lektor-server: docker-build
-	$(DOCKER_RUN) -e WEBSITE -p 5000:5000 $(DOCKER_IMAGE) \
+	$(DOCKER_RUN) -p 5000:5000 \
 	    make lektor-server
 
 docker-build:
 	set -eux ; \
 	DOCKERFILE="$$(readlink -f Dockerfile)" \
-	&& cd $(WEBSITE) \
+	&& cd $(PROJECTDIR) \
 	&& docker build -t $(DOCKER_IMAGE) -f "$$DOCKERFILE" .
