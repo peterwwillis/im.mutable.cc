@@ -9,7 +9,9 @@ RUN set -eux ; \
     ; pip install Lektor==${LEKTOR_VERSION}
 
 WORKDIR /app
-
 VOLUME /app
 
-CMD lektor server
+EXPOSE 5000
+
+# you must map in the directory of a website to use this command
+CMD lektor server -h 0.0.0.0
