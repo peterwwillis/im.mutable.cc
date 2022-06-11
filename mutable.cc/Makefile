@@ -21,7 +21,7 @@ docker-lektor-build: docker-build
 	$(DOCKER_RUN) \
 	    lektor build -v -O ./public
 
-docker-lektor-server:
+docker-lektor-server: docker-build
 	$(DOCKER_RUN) \
 		lektor server -h 0.0.0.0
 
