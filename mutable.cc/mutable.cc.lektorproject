@@ -16,11 +16,15 @@ target = ghpages+https://peterwwillis/im.mutable.cc
 default = yes
 
 [packages]
-lektor-webpack-support = 0.3
-lektor-disqus-comments = 0.1
+#lektor-webpack-support = 0.3
+lektor-disqus-comments = 0.4.1
 lektor-markdown-header-anchors = 0.1
 lektor-markdown-highlighter = 0.3.2
-lektor-markdown-admonition = 0.1
+lektor-markdown-admonition = 0.3.1
 lektor-atom = 0.4.0
-lektor-tags = 0.3
+lektor-tags = 0.5.0
 lektor-slugify = 0.4
+lektor-jinja-content = 0.4.2
+lektor-webdav = 0.1.1.post5
+lektor-embed-x = 0.1.2
+lektor-envvars = 18.6.12.4 
