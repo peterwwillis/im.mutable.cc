@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eux
+
+[ $# -gt 1 ] || { echo "Usage: PROJECTDIR=mutable.cc $0 [DOCKER_OPTS] DOCKER_IMG lektor ..." ; exit 1 ; }
+
+docker run --rm -it \
+    -u "$(id -u):$(id -g)" \
+    -v /etc/passwd:/etc/passwd:ro \
+    -v /etc/group:/etc/group:ro \
+    -v "$(readlink -f "$(dirname "$PROJECTDIR")"):/app:Z" \
+    -e PROJECTDIR \
+    "$@"
