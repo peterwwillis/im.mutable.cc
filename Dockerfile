@@ -5,7 +5,9 @@ ENV LEKTOR_VERSION=$LEKTOR_VERSION
 
 RUN set -eux ; \
     apk --no-cache upgrade \
-    ; apk add --no-cache imagemagick \
+    ; apk add --no-cache \
+        imagemagick \
+        make \
     ; pip install Lektor==${LEKTOR_VERSION}
 
 # might be a bad idea, but makes Lektor happy

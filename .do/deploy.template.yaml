@@ -1,9 +1,11 @@
 spec:
-  name: mutable-jekyll
+  name: mutable-cc-lektor
+
   static_sites:
-  - build_command: bundle exec jekyll build -d ./public
-    environment_slug: jekyll
+  - name: mutable-cc
     git:
       branch: main
       repo_clone_url: https://github.com/peterwwillis/www.mutable.cc.git
-    name: mutable-jekyll
+    dockerfile_path: Dockerfile
+    build_command: make WEBSITE=mutabe.cc lektor-build
+    environment_slug: html
