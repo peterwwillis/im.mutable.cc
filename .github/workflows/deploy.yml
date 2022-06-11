@@ -16,7 +16,7 @@ env:
   DEPLOY: >-
     ${{
       github.event_name != 'pull_request'
-      && github.ref == 'refs/heads/master'
+      && github.ref == 'refs/heads/main'
     }}
   OUTPUT: _html
 
