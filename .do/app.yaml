@@ -1,9 +1,20 @@
+domains:
+- domain: im.mutable.cc
+  type: PRIMARY
+- domain: mutable.cc
+  type: ALIAS
+
 name: mutable-jekyll
+region: nyc
+
 static_sites:
 - build_command: bundle exec jekyll build -d ./public
-  environment_slug: jekyll
+  catchall_document: 404.html
+  environment_slug: html
   github:
     branch: main
     deploy_on_push: true
     repo: peterwwillis/www.mutable.cc
-  name: mutable-jekyll
+  name: www-mutable-cc-htdocs
+  routes:
+    - path: /
