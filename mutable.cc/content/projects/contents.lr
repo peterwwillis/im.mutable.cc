@@ -2,8 +2,13 @@ title: Projects
 ---
 body:
 
-This is a list of the projects:
+I develop Open Source software in my spare time. Here's some of them:
 
-* Project 1
-* Project 2
-* Project 3
+<ul>
+<li>  <a href="http://github.com/pwillis-els/terraformsh" id="github-stats-badge">GitHub</a> <img src="https://tokei.rs/b1/github/pwillis-els/terraformsh" />
+      <li>A Terraform wrapper in Bash. Keeps your code and configuration DRY. Convenience functions make it easier to work with Terraform both from the command-line and in automation.</li>
+</li>
+<li>  
+</ul>
+
+<script src="https://swharden.github.io/repo-badge/badge.js" defer></script> 
