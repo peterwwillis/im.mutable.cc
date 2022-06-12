@@ -6,13 +6,13 @@ url_style = relative
 [servers.ghpages]
 enabled = yes
 name = Github pages on repo
-target = ghpages://peterwwillis/im.mutable.cc
+target = ghpages://peterwwillis/im.mutable.cc?cname=im.mutable.cc
 default = not
 
 [servers.ghpages-https]
 enabled = yes
 name = Github pages on repo
-target = ghpages+https://peterwwillis/im.mutable.cc
+target = ghpages+https://peterwwillis/im.mutable.cc?cname=im.mutable.cc
 default = yes
 
 [packages]
