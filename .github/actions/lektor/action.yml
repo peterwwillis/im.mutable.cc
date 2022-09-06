@@ -1,0 +1,17 @@
+name: "Deploy website with Lektor"
+description: "GitHub action for deploying a static website with Docker"
+
+inputs:
+  makearg:
+    description: A command/argument to pass to 'make'
+    required: false
+  deploy_username:
+    description: A username for Lektor to use for a deploy
+    required: false
+  deploy_password:
+    description: A password for Lektor to use for a deploy
+    required: false
+
+runs:
+  using: "docker"
+  image: "Dockerfile"

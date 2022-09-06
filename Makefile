@@ -1,5 +1,7 @@
 
-PROJECTDIR := mutable.cc
+OUTPUT ?= ./public
+
+PROJECTDIR := lektor
 
 ifeq ($(PROJECTDIR),)
 $(error Error: pass PROJECTDIR variable with path to Lektor project)
@@ -22,24 +24,38 @@ help:
 	@echo "Targets:"
 	@echo "  lektor-build"
 	@echo "  lektor-server"
+	@echo "  lektor-version-freeze"
 	@echo "  docker-lektor-build"
 	@echo "  docker-lektor-server"
+	@echo "  docker-lektor-version-freeze"
 	@echo "  docker-build"
+
+lektor-version-freeze:
+	cd "$(PROJECTDIR)" \
+	&& pip freeze > requirements.txt
 
 lektor-build:
 	cd "$(PROJECTDIR)" \
-	&& lektor build -v -O ./public
+	&& lektor build -v -O "$(OUTPUT)"
 
 lektor-server:
 	cd "$(PROJECTDIR)" \
 	&& lektor server -h 0.0.0.0
+
+lektor-deploy:
+	cd "$(PROJECTDIR)" \
+	&& lektor deploy -O "$(OUTPUT)" ghpages-https
+
+docker-lektor-version-freeze: docker-build
+	$(DOCKER_RUN) \
+		make lektor-version-freeze
 
 docker-lektor-build: docker-build
 	$(DOCKER_RUN) \
 	    make lektor-build
 
 docker-lektor-server: docker-build
-	$(DOCKER_RUN) -p 5000:5000 \
+	DOCKER_OPTS="-p 5000:5000" $(DOCKER_RUN) \
 	    make lektor-server
 
 docker-build:
@@ -47,3 +63,4 @@ docker-build:
 	DOCKERFILE="$$(readlink -f Dockerfile)" \
 	&& cd $(PROJECTDIR) \
 	&& docker build -t $(DOCKER_IMAGE) -f "$$DOCKERFILE" .
+

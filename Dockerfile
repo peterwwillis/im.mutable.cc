@@ -1,14 +1,22 @@
 FROM python:3.10-alpine3.15
 
-ARG LEKTOR_VERSION=3.3.4
-ENV LEKTOR_VERSION=$LEKTOR_VERSION
+COPY requirements.txt requirements.txt
 
 RUN set -eux ; \
-    apk --no-cache upgrade \
-    ; apk add --no-cache \
+    apk --no-cache upgrade ; \
+    apk add --no-cache \
         imagemagick \
-        make \
-    ; pip install Lektor==${LEKTOR_VERSION}
+        make
+
+COPY requirements.txt requirements.txt
+
+RUN set -eux ; \
+    pip install -r requirements.txt
+
+# For GitHub Actions to pass arguments to this container
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 # might be a bad idea, but makes Lektor happy
 ENV HOME=/tmp/lektor

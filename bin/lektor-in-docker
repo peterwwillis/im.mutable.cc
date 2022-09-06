@@ -1,12 +1,17 @@
 #!/usr/bin/env sh
 set -eux
 
-[ $# -gt 1 ] || { echo "Usage: PROJECTDIR=mutable.cc $0 [DOCKER_OPTS] DOCKER_IMG lektor ..." ; exit 1 ; }
+[ $# -gt 1 ] || { echo "Usage: $0 [DOCKER_OPTS] DOCKER_IMG lektor ..." ; exit 1 ; }
+
+DOCKER_OPTS="${DOCKER_OPTS:-}"
+PROJECTDIR="${PROJECTDIR:-$(pwd)}"
 
 docker run --rm -it \
     -u "$(id -u):$(id -g)" \
     -v /etc/passwd:/etc/passwd:ro \
     -v /etc/group:/etc/group:ro \
-    -v "$(readlink -f "$(dirname "$PROJECTDIR")"):/app:Z" \
+    -v "$(readlink -f "$PROJECTDIR"):/app:Z" \
+    -w /app \
     -e PROJECTDIR \
+    $DOCKER_OPTS \
     "$@"
