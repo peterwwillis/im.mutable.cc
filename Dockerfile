@@ -8,6 +8,8 @@ RUN set -eux ; \
         imagemagick \
         make
 
+RUN env
+
 COPY requirements.txt requirements.txt
 
 RUN set -eux ; \
