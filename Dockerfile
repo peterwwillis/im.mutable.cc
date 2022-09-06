@@ -1,6 +1,6 @@
 FROM python:3.10-alpine3.15
 
-RUN env
+RUN env ; pwd ; ls -la
 
 RUN set -eux ; \
     apk --no-cache upgrade ; \
