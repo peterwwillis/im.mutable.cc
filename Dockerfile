@@ -1,14 +1,12 @@
 FROM python:3.10-alpine3.15
 
-COPY requirements.txt requirements.txt
+RUN env
 
 RUN set -eux ; \
     apk --no-cache upgrade ; \
     apk add --no-cache \
         imagemagick \
         make
-
-RUN env
 
 COPY requirements.txt requirements.txt
 
