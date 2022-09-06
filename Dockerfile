@@ -21,10 +21,9 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 # might be a bad idea, but makes Lektor happy
 ENV HOME=/tmp/lektor
 
-WORKDIR /app
-VOLUME /app
-
 EXPOSE 5000
+
+# Do not set WORKDIR as it conflicts with GitHub Actions expectations
 
 # you must map in the directory of a website to use this command
 CMD lektor server -h 0.0.0.0
