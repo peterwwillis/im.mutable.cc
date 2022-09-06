@@ -25,6 +25,7 @@ help:
 	@echo "  lektor-build"
 	@echo "  lektor-server"
 	@echo "  lektor-version-freeze"
+	@echo "  lektor-deploy"
 	@echo "  docker-lektor-build"
 	@echo "  docker-lektor-server"
 	@echo "  docker-lektor-version-freeze"

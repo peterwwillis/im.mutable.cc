@@ -4,7 +4,9 @@ RUN set -eux ; \
     apk --no-cache upgrade ; \
     apk add --no-cache \
         imagemagick \
-        make
+        make \
+        git \
+        openssh
 
 COPY requirements.txt requirements.txt
 
