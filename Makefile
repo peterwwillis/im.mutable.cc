@@ -62,6 +62,5 @@ docker-lektor-server: docker-build
 docker-build:
 	set -eux ; \
 	DOCKERFILE="$$(readlink -f Dockerfile)" \
-	&& cd $(PROJECTDIR) \
 	&& docker build -t $(DOCKER_IMAGE) -f "$$DOCKERFILE" .
 
