@@ -26,6 +26,7 @@ help:
 	@echo "  lektor-server"
 	@echo "  lektor-version-freeze"
 	@echo "  lektor-deploy"
+	@echo "  docker-lektor-shell"
 	@echo "  docker-lektor-build"
 	@echo "  docker-lektor-server"
 	@echo "  docker-lektor-version-freeze"
@@ -54,6 +55,10 @@ docker-lektor-version-freeze: docker-build
 docker-lektor-build: docker-build
 	$(DOCKER_RUN) \
 	    make lektor-build
+
+docker-lektor-shell: docker-build
+	$(DOCKER_RUN) \
+		sh -l
 
 docker-lektor-server: docker-build
 	DOCKER_OPTS="-p 5000:5000" $(DOCKER_RUN) \

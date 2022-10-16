@@ -6,14 +6,15 @@
     <h2>{{ post.title }}</h2>
   {% endif %}
   <p class="meta">
-    written by
-    {% if post.twitter_handle %}
-      <a href="https://twitter.com/{{ post.twitter_handle
-        }}">{{ post.author or post.twitter_handle }}</a>
-    {% else %}
-      {{ post.author }}
+    {% if post.pub_date %}
+    date: {{ post.pub_date }}
     {% endif %}
-    on {{ post.pub_date }}
+    {% if post.youtube_id and post.youtube_title %}
+    <br /> music: <i>{{ post.youtube_title }}</i> <br />
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ post.youtube_id }}" title="{{ post.youtube_title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    {% elif post.music %}
+    <br /> music: <i>{{ post.music }}</i> <br />
+    {% endif %}
   </p>
   {{ post.body }}
   </div>
