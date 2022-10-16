@@ -1,0 +1,5 @@
+title: New personal website
+---
+body: So, this is my new personal site. It's been a long time coming. I couldn't figure out how I wanted to create it. Being a perfectionist nerd, I look at all the million easy ways to create a blog and think, "None of these are right." I wanted a WYSIWYG editor, I wanted static files, and I wanted to be able to modify things in some programming language I was familiar with. So after a very long search, I finally found Lektor (https://www.getlektor.com/). I'm still not totally familiar or comfortable with it, but I'm pushing forward anyway in the hopes that it gets easier to use.
+---
+pub_date: 2022-10-16
