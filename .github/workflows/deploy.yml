@@ -22,11 +22,22 @@ env:
       github.event_name != 'pull_request'
       && github.ref == 'refs/heads/main'
     }}
-  OUTPUT: _html
+  OUTPUT: lektor/_html
 
 jobs:
+
   build:
     name: Build lektor website and move files to gh-pages branch
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
@@ -40,21 +51,31 @@ jobs:
       - name: Check for broken internal links
         uses: wjdp/htmltest-action@master
         with:
-          path: "lektor/${{ env.OUTPUT }}"
+          path: "${{ env.OUTPUT }}"
           config: .htmltest.yml
           skip_external: true
           log_level: 1
 
-      - name: Deploy lektor website to gh-pages
-        if: env.DEPLOY == 'true'
-        uses: ./.github/actions/lektor
+#      - name: Deploy lektor website to gh-pages
+#        if: env.DEPLOY == 'true'
+#        uses: ./.github/actions/lektor
+#        with:
+#          makearg: lektor-deploy
+#          deploy_username: "peterwwillis"
+#          deploy_password: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v2
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          makearg: lektor-deploy
-          deploy_username: "peterwwillis"
-          deploy_password: "${{ secrets.GITHUB_TOKEN }}"
+          path: "${{ env.OUTPUT }}"
+
 
   deploy:
-
+    name: Deploy lektor-built site to GitHub Pages
     needs: build
 
     permissions:
@@ -65,16 +86,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
 
-    name: Deploy lektor-built site to GitHub Pages
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v2
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
-        with:
-          path: .
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
