@@ -1,5 +1,9 @@
 name: "Deploy site"
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 on:
   pull_request:
     branches:
@@ -21,12 +25,12 @@ env:
   OUTPUT: _html
 
 jobs:
-  deploy:
-    name: Deploy lektor website
+  build:
+    name: Build lektor website and move files to gh-pages branch
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build site with Lektor
         uses: ./.github/actions/lektor
@@ -41,11 +45,37 @@ jobs:
           skip_external: true
           log_level: 1
 
-      - name: Deploy lektor website
+      - name: Deploy lektor website to gh-pages
         if: env.DEPLOY == 'true'
         uses: ./.github/actions/lektor
         with:
           makearg: lektor-deploy
           deploy_username: "peterwwillis"
           deploy_password: "${{ secrets.GITHUB_TOKEN }}"
+
+  deploy:
+
+    needs: build
+
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    name: Deploy lektor-built site to GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v2
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: .
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
 
