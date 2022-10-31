@@ -1,6 +1,10 @@
 <!doctype html>
+
 <meta charset="utf-8">
-<link rel="stylesheet" href="{{ '/static/style.css'|url }}">
+
+<link id="generic-css-dark"  rel="stylesheet" type="text/css" href="{{ '/static/generic-dark.css'|url }}"/>
+<link id="generic-css-light" rel="stylesheet" type="text/css" href="{{ '/static/generic-light.css'|url }}"/>
+<script type="text/javascript" src="{{ '/static/generic-css.js'|url }}"></script>
 <title>{% block title %}Welcome{% endblock %} — mutable.cc</title>
 <body>
   <header>
@@ -8,7 +12,7 @@
     <nav>
       <ul class="nav navbar-nav">
         <li{% if this._path == '/' %} class="active"{% endif
-          %}><a href="{{ '/'|url }}">Welcome</a></li>
+        %}><b><a href="{{ '/'|url }}">Welcome</a></b></li>
         {% for href, title in [
           ['/x', 'Blog'],
           ['/projects', 'Projects'],
@@ -16,8 +20,11 @@
           ['/about', 'About']
         ] %}
           <li{% if this.is_child_of(href) %} class="active"{% endif
-            %}><a href="{{ href|url }}">{{ title }}</a></li>
+          %}><b><a href="{{ href|url }}">{{ title }}</a></b></li>
         {% endfor %}
+          <li><button onclick='genericCSSToggle("light")'>Light</button></li>
+          <li><button onclick='genericCSSToggle("dark")'>Dark</button></li>
+          <li><button onclick='genericCSSToggle("none")'>No style</button></li>
       </ul>
     </nav>
   </header>

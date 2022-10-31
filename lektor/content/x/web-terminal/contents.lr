@@ -1,0 +1,53 @@
+title: Using a terminal in a browser
+---
+body:
+
+I'm interested in trying out more Cloud Native development practices. The first step I'd like to take, is to be able to spin up an arbitrary environment in some Cloud-based hosting, and use a terminal from it. I hope to build on this to enable more rapid software development, without having to set up or maintain a development environment.
+
+Some general notes:
+ - It seems like for persistent sessions, you want to use *screen* or *tmux* to open the initial session, and resume it when web clients want to connect.
+ - Some 'web terminal' applications will just immediately serve a terminal on an HTTP port, whereas some others require manual interaction before a terminal is opened. The former seem more useful for automation, the latter more useful as a way to connect to other servers (from a bastion, say).
+ - There are sample Apache2 and Nginx configurations out there to redirect requests to different ports based on a URL prefix. Apache2 seems to be less encumbered (Nginx likes to lock up features behind a "Pro" version)
+
+There are a lot of options out there. Here's what I've found so far:
+
+### [WeTTY](https://butlerx.github.io/wetty/#/)
+A Node.js application to connect to a host via SSH and display the terminal in the browser. Pretty bare-bones functionality. The documentation is extremely thorough, and has lots of useful setup instructions, even for handling SAML2 logins.
+
+To try out in Docker:
+1. Run `docker run --rm -p 3000:3000 wettyoss/wetty`
+2. Run `docker exec -it passwd node` and enter a new password.
+3. Open a browser to http://localhost:3000/wetty and enter username *node* and the password.
+
+### [ttyd](https://github.com/tsl0922/ttyd)
+A C application that shares a TTY on the web. Basically a reimplementation of GoTTY below.
+
+To try out in Docker:
+1. Run `docker run -it --rm -p 7681:7681 tsl0922/ttyd`
+2. Open a browser to http://localhost:7681/
+
+### [GoTTY](docker run --rm -it -p 8080:8080 stevelaclasse/gotty-web-ssh /app/gotty -w sh -l)
+A Go application that shares a TTY on the web. Has some useful functionality, seems fairly ideal for programmatically opening a terminal on a web port.
+
+This is used by projects like [webkubectl](https://github.com/KubeOperator/webkubectl) and [gotty-web-users-Docker](https://github.com/stevelaclasse/gotty-multi-users-Docker). There is a nifty [client app](https://github.com/moul/gotty-client) for it too.
+
+To try out in Docker:
+1. Run `docker run --rm -it -p 8080:8080 stevelaclasse/gotty-web-ssh /app/gotty -w sh -l`
+2. Open a browser to http://localhost:8080/
+
+### [webssh](https://github.com/huashengdun/webssh)
+This is a Python app that allows you to SSH to hosts from a web terminal. The default is to give you a web interface to let you connect to an arbitrary host via SSH. However, you can pass URL queries to specify a hostname, username, password, and other default options.
+
+This is definitely the "user-friendly" option if you just have a bastion and need to let users SSH from it. There is a [setup guide here](https://www.digitalocean.com/community/tutorials/how-to-connect-to-a-terminal-from-your-browser-using-python-webssh).
+
+To try out in Docker:
+1. Run `git clone https://github.com/huashengdun/webssh.git`
+2. Run `cd webssh`
+3. Run `docker build -t webssh .`
+4. Run `docker run --rm -p 8888:8888 --network=host webssh`
+5. Open a browser to http://localhost:8888/
+6. Put in your local user's password and click 'Connect'
+
+
+---
+pub_date: 2022-10-30
