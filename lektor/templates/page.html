@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% if this.title != "" %}{% block title %}{{ this.title }}{% endblock %}{% endif %}
 {% block body %}
-  {% if this.title != "" %}<h1>{{ this.title }}</h1>{% endif %}
+{#{% if this.title != "" %}<h1>{{ this.title }}</h1>{% endif %}#}
   {{ this.body }}
 {% endblock %}

@@ -8,7 +8,6 @@
 <title>{% block title %}Welcome{% endblock %} — mutable.cc</title>
 <body>
   <header>
-    <h1>mutable.cc</h1>
     <nav>
       <ul class="nav navbar-nav">
         <li{% if this._path == '/' %} class="active"{% endif
@@ -24,14 +23,13 @@
         {% endfor %}
           <li><button onclick='genericCSSToggle("light")'>Light</button></li>
           <li><button onclick='genericCSSToggle("dark")'>Dark</button></li>
-          <li><button onclick='genericCSSToggle("none")'>No style</button></li>
       </ul>
     </nav>
   </header>
-  <div class="page">
-    {% block body %}{% endblock %}
-  </div>
+  {% if this.title != "" %}<h1>{{ this.title }}</h1>{% endif %}
+  <div class="page">{% block body %}{% endblock %}</div>
   <footer>
+    <br />
     &copy; Copyright 2022 by mutable.cc.
   </footer>
 </body>
