@@ -2,103 +2,192 @@ title: Kill your Configuration Management
 ---
 body:
 
-For a very long time, people have been building Systems. Often they maintain many different Systems. And often those different Systems require configuration. As they modify those Systems over time, it can get harder and harder to maintain their state.
+Working in IT Operations for nearly two decades, I haven't seen many transformational new practices. The way to improve is mostly just learning the same lessons people've been re-learning since computers were invented.
 
-These systems are constantly changing. Sometimes they just happen to get into a bad state, and run *wrong*. So we need something to go around and fix their state, so they run *right*.
+But there are one or two transformational ideas that have popped up during my time. One of those ideas is that *Configuration Management* is an anti-pattern. Its use is actively worse for the System as a whole, and there are better ways to manage Systems.
+
+The following is my (admittedly weak) attempt to explain why you should not use *Configuration Management* (most of the time), and an alternative practice.
+
+<hr />
+
+When somebody maintains a System, often they notice over time that they need to change that System every so often. And every so often a System fails.
+
+Investigation into why it failed often shows the System wasn't running the way it was intended to. Somehow something changed (configuration, software versions, etc) or something else happened that differed from the last known good configuration.
+
+In these cases, most people think something like "Hey, we should have some software that prevents this System's state from getting out of whack!"
+
 
 ## Configuration Management
 
 Thus was born [Configuration Management](https://en.wikipedia.org/wiki/Configuration_management): tools to go around and fix System state.
 
-Many different Configuration Management systems have been developed, and I've used many of them. I started out using CFengine and CFengine2, and later moved on to Puppet and Ansible. Many of these systems work on the idea of a *declared* or *desired state*: you *declare* what you want, and the tool makes it happen. Oh, state isn't correct anymore? Don't worry; the tool will make it right, fixing the System to match what you *declared* you wanted.
+*Configuration Management* systems have been around for years. I've used many of them. I started out using CFengine and CFengine2, and later moved on to Puppet and Ansible. I've even used "Enterprise" *CM* systems from Hewlett Packard; giant monstrosities that were full of features, but were clunky to use.
 
-And this seems good, right? Why *wouldn't* you want to fix your System state? If it's wrong, we need to fix it! And "declaring" your System state seems more logical than describing to the system every single step it should take to reach our desired state.
+Modern *CM* systems work on the idea of a *declared* or *desired state*: you *declare* what you want, and the tool makes it happen. Oh, state isn't correct anymore? Don't worry: the tool will make it right, fixing the System to match what you *declared* you wanted. (Some *CM*s require a more explicit order of operations, but they're really not that different)
 
-The thing is... there are a couple fundamental problems with this model. Problems so fundamental that they negate the usefulness of the solution we have created.
+Seems logical, right? If the state's wrong, we need to fix it... And "declaring" System state seems simpler than describing every single operation needed, in order, to get back to the good System state.
+
+Thing is, there's some fundamental problems with this model. Problems so fundamental that they sometimes negate the usefulness of the solution. But there's some better ways to go about the solution, which I'll cover later.
 
 
 ## The State Always Changes
 
-If a System is operating nominally, and it *never* changes, then the System should not break down. There's nothing happening to cause any change in the System, so the System will just keep ticking away.
+If a System is operating nominally, and it never changes, it shouldn't break down, right? Nothing seems to be happening to cause any change in the System, so the System should just keep ticking away.
 
-But every System does change. Even ones that don't *seem* like they're changing. Time itself will cause your System to change; as a ticking digital clock increments the seconds since the Unix epoch, eventually the integer, double, float, etc the number is stored in will overflow, resetting time. Computer parts will degrade over time. Cosmic rays shooting through the universe will flip bits in your computer's RAM. Eventually, your System will change, and it will break. This is the fate of all Systems.
+But every System does change. Time itself will cause your System to change; as a ticking digital clock increments the seconds since the Unix epoch, eventually the integer, double, float, long, long long, or whatever data type the number is stored in will overflow, resetting the time, and possibly wreaking havoc on something. Computer parts will degrade over time; hard drives die, fans get clogged, capacitors blow. Cosmic rays shooting through the universe flip bits in RAM. Eventually your System *will* change, and it will break. That's entropy for ya.
 
-On a more practical scale, Systems usually involve changes, because to simply *use* a System typically involves a change.
- - For an automobile, that might be the pistons pulsing up and down, sloshing in oil, being shoved back and forth in a metal cylinder while explosions ripple through its frame thousands of times a minute.
- - For a piece of software, there are often constant changes: allocation and deallocation of memory; network connections starting, stopping, or timing out; input being taken, processed, and output bring generated; disks being written to; and then there's the actual configuration of the System itself being changed due to maintenance, bug fixes, feature adds.
+On a more practical scale, simply using a System often involves changes:
 
-The System's state is always changing. That seems like a pretty good argument for Configuration Management, right? We need something to constantly fix all this state!
+ - For an automobile, that might be the pistons pulsing up and down, sloshing in oil, being shoved back and forth in a metal cylinder while explosions ripple through its frame thousands of times a minute. Eventually that oil degrades and needs to be changed, or the whole machine will quickly break down.
+
+ - For a piece of software, there are many different kinds of constant change: allocation and deallocation of memory, network connections starting/stopping/timing out, input being taken, processed, and output generating, disks being written to. The configuration of the System is also often changed due to maintenance, bug fixes, feature adds.
+
+So any System's state is always changing. That seems like a pretty good argument for *CM*, right? We need something to constantly fix all this mutating and drifting state. But it's not as cut and dry as "just fix the state".
 
 ## Configuration Management is Code
 
-One problem with trying to use Configuration Management to fix System state, is it's not very easy.
+One problem with trying to use *CM* to fix System state, is it's not very easy.
 
-Configuration Management is basically a form of [Low-code development](https://en.wikipedia.org/wiki/Low-code_development_platform). Rather than write all the code to fix the System state, you use existing code, and "configure" that code, by telling it what you want it to do. "Fix this file to have X permission", "Put that file over there", etc.
+*CM* is basically a form of [Low-code development](https://en.wikipedia.org/wiki/Low-code_development_platform). You use the *CM*'s library of functions and "configure" them to do what you want. "Make this file to have X permission", "Put this file over there", etc.
 
-Of course, the more complex the System is, the more of this "configuration" you have to write, in increasingly complex ways. The "configuration" becomes a sort of program in itself, even if it's not technically "code". It needs to be maintained and tested on test Systems in order to prevent accidentally messing up the production Systems.
+The more complex the System is, the more "configuration" you have to write, in increasingly complex ways. *CM* configuration is written in a *Domain Specific Language*, which is basically a tailor-made programming language. The "configuration" is literally source code for an interpreted language (the *CM*); even if it doesn't seem like "real programming" in a "real language", the result is very similar.
 
-Inevitably, you spend a good chunk of time just working on this code. And you have to hire specialists who are familiar with the code so they can maintain it. And someone to run the code and troubleshoot it when it goes wrong. And because it's code, it eventually has bugs, which eventually leads to bugs in the System.
+Because it's code, it eventually has bugs, which eventually leads to bugs in the System. So this "configuration" (source code) needs to be tested on "test" Systems in order to prevent accidentally messing up the production Systems. Inevitably you spend a good chunk of time working on this code. You need to hire specialists who are familiar with the "language" and "tooling" so they can maintain it, run it, troubleshoot it.
 
-So really, the Configuration Management hasn't bought you much over a regular programmer writing custom code to do things. The Configuration Management tools just come bundled with some pre-written code. Of course, if you're maintaining lots of different kinds of systems, this can be advantageous, as you don't need to write everything from scratch. But the end results won't be substantively different than just writing code from scratch.
+In the end, the *CM* hasn't bought you much over a regular programmer writing custom code. I suppose the difference is, "real" programming is more challenging, and the *CM* tool comes bundled with pre-written, tested, purpose-built, portable functions. If you're maintaining lots of different kinds of systems, this can be advantageous. But in many cases, the end results aren't much different than writing everything from scratch.
 
-## Thinking outside the box
 
-So far we've learned that the System's state is always changing, and Configuration Management is code we write to try to continuously fix the System state.
+## Thinking Outside the Box
 
-Wouldn't it be nice if we *didn't* have to write this code? Wouldn't it be nice if we *didn't* have to wrestle with fixing the System constantly?
+So far we've learned that the System's state is always changing, and *CM* is code we write to try to continuously fix the System state.
 
-If only there were some way for us to freeze the System in a good state. *Exactly* how we want it to run. And then, when the State becomes unruly, we can simply zap the good state back in place and have the System run normally again.
+Wouldn't it be nice if we didn't have to write and maintain this code? If we didn't have to wrestle with fixing the System constantly?
 
-Is there any way we could achieve this state nirvana?
+What if there were a way to freeze the System in a good state, *exactly* how we want it to run? When the State becomes unruly, we can zap the good state back in place and have the System run normally again. Is there any way we could achieve this state nirvana?
 
-## Immutable Infrastructure kills Configuration Management
+## Immutable Infrastructure to the Rescue
 
-The idea of [Immutable Infrastructure](https://www.oreilly.com/radar/an-introduction-to-immutable-infrastructure/) is now over a decade old. The essential idea is this: when you build a System, make its components [Immutable](https://en.wikipedia.org/wiki/Immutable_object), or unchanging. Save the state of the System and don't allow it to be changed.
+The idea goes like this:
 
-Imagine you have a filesystem with all its files in their right places, all the right permissions and ownership, all the right versions. You then make a copy of that filesystem, give it a version, checksum it, and save it somewhere. This copy of the filesystem is now called an *immutable artifact*. When you run your System, you retrieve that *artifact*, load it into the System, and make it read-only. Now every time you start your System, you have the same filesystem state that you knew was good before, and nobody can modify it. The System's filesystem state is now known to be good and won't change. We no longer need Configuration Management to fix the filesystem state!
+- When you build a System, make its components [Immutable](https://en.wikipedia.org/wiki/Immutable_object), or unchanging.
+- When the System is working as you expect, save the System's state as versioned *artifact*.
+- Deploy the System using this versioned *artifact* of state, such that when the System starts up, it's working exactly as it did when you saved the state.
+- If the System ever breaks, destroy the System, and re-create it again using the versioned *artifact*, the exact same way you started it the first time.
 
-Or let's say you run Linux in a Virtual Machine. You install certain software, set up the filesystem, etc, and it starts up just fine and runs your applications automatically. If you snapshot that VM, now you can always start a new VM with exactly the same state. You no longer need Configuration Management to start a VM with the correct state!
+This has a lot to do with the [Cattle vs Pets](http://cloudscaling.com/blog/cloud-computing/the-history-of-pets-vs-cattle/) analogy.
 
-The same goes for containers, software packages, software configuration, etc. All of it can be saved in its known good state, and restored to its known good state. And the best part is, there's no coding a Configuration Management tool's configuration, no maintaining the Configuration Management software, etc. All you have to do to fix the System's state is restore the System to a known good *artifact* of its previous state.
+If you treat your Systems as Cattle, then it's very easy to quickly replace them, and use a versioned artifact to restore their state. (Pets vs Cattle  analogy in short: servers treated like pets stick around for a long time, but require constant feeding, care, emergency visits to the vet... when what you want is cattle: interchangeable, nameless livestock that can be easily replaced on a whim. sorry, cattle... 😢)
 
-The benefits are huge:
- - No CM code to write
- - No CM system to maintain
- - Simpler operations
- - Fewer failures (no "unknowns" from the CM code/system/state)
- - Easy recovery (delete the System with bad state, re-deploy it with good state)
+What you gain from this method is an abundance of benefits:
 
-With Immutable Infrastructure you can reduce your staff, increase your System reliability, make changes more frequently and with more confidence, and reduce your cost and overall complexity.
+ - No more obscure *CM* tools to learn and maintain.
+ - No more DSL to decipher, and code to maintain.
+ - No more "fixing" state; the state is what it is and it doesn't change.
+ - Fewer failures! No more failures from bugs in the *CM* code. No more "failed to apply configuration" due to the configuration being applied *after* a new instance is started.
+ - Simpler operations, easier recovery: If it fails, just launch a new one and kill the old one.
+ - More reliable operations: Very little chance of something to go wrong. The only thing that can fail is if the *artifact* is missing, or a new copy of the System won't start.
+
+This goes for containers, software packages, software configuration, etc. All of it can be saved and restored from a known good state. And the best part is, there's no coding a *CM* tool's configuration, no maintaining the *CM* software, etc. All you have to do to fix the System's state is restore the System to a known good *artifact* of its previous state.
+
+With *Immutable Infrastructure* you can reduce your staff, reduce System complexity, increase System reliability, make changes more frequently (& with confidence), and reduce your overall cost.
 
 
 ## Making it Work
 
-Immutable Infrastructure is great in theory, but it's not always obvious how to implement it. Every System needs to be adapted to work Immutably.
+This is all great in theory, but it's not always obvious how to implement it. *Immutable Infrastructure* is a philosophy more than a single practice. Different Systems need to be adapted to work Immutably.
 
-Firstly, every Immutable System should not persist changes. That means if there is any change made to the System during its operation, you should be able to shut down/delete that System, and start a new one from the last known good *artifact*. If these Systems carry their changes forward, that allows bugs to propagate into the newly-deployed System, despite using the last known good *artifact*.
+Here are some guidelines for making it all work:
 
-Secondly, every Immutable System should be paired with an *environment* that is known to work with that Immutable System. For example: if you create an *artifact* of a VM in one network, and run that VM in a second network, will that second network allow the VM to operate as expected? If you pass different Environment Variables into a container, will the container still run correctly? You must think about an Immutable System as a holistic entity that is affected by everything that touches it. If you're introducing something new, expect it to break; maintain the System in lock-step with its *environment* to prevent problems.
 
-Thirdly, when a System's state eventually changes so much that it stops working, you must employ an appropviate deployment method to replace the faulty System with the last known good configuration. There are many different deployment strategies depending on the System's requirements.
+1. Build your *artifacts*, then test them, then version them, then deploy them, and roll back to the last known good *artifact*. This is almost always the same pattern for all *Immutable Infrastructure*.
+   - You build the *artifact* just once. If you tried to build it every time you deployed or rolled back, the build might fail, and then you can't deploy or roll back. Building it once means you can use the end result a million times and not worry about anything breaking that build that worked, way back when.
+   - You test the *artifact* to make sure it's valid. You can take your time testing it, because you're not deploying yet.
+   - Once you've validated the *artifact* is good, you give it a new version number. It doesn't matter what the version is; it just significes that "hey, we tested this, and it worked, so you can deploy this or roll back to it any time".
+   - Deploy the *artifact*. This should just work!
+   - If the service fails right after deployment, just roll back to the last successfully-deployed version. (Obviously this doesn't cover things like SQL migrations. But it would behoove you to bundle migrations with your Immutable Artifacts, so that whenever you roll back or deploy, the right migration goes along with it)
 
-And remember that Immutable Infrastructure is more philosophy than ridgid practice. The advent of Cloud Computing has made it much easier, as we can now destroy and recreate Virtual Machines, Containers, etc in an instant. But we could have used Immutable Infrastructure back in the old days, too. Even a bunch of bare-metal servers can have identical configuration, restored from an *artifact* every time they reboot. They can get network configuration on the fly, and install packaged software and configuration from a remote repository. The only difference is that today we do it with APIs, while back in the day we would've used DHCP, IPMI, SSH, RPM, and other means.
+2. Don't persist changes. If there's a change made to a System during its operation, it must not persist into the next restart of the System. If the System depends on persisted changes, that needs to be done in a way that is also immutable. Changes that persist, but are not immutable *artifacts*, will carry bugs with them that you may not be able to fix.
+
+3. The *Environment* is an *artifact* too. If you built your System to work in one region/zone, and snapshotted it, and try to deploy that in a different region/zone, it might not work! The *Environment* is everything that changes between deployments; environment variables, credentials, regions/zones, IP addresses/hostnames, cluster namespaces, etc. If the *Environment* changes, you're gonna need to test your System with those changes. So keep track of the *Environment* along with your *artifact*, so that if a failure occurs, but the *artifact* hasn't changed, you can check if it's due to the *Environment* changing. 
+
+4. Tailor the *Deployment* to the System. Different Systems require different *Deployment Methods*. Some might need persistent disks; some might need each copy of the System replaced one at a time; some might need an Blue/Green replacement; etc.
+
+5. There's no one way to do it. It's not even a new idea. Sure, the term is [over 10 years old](https://www.oreilly.com/radar/an-introduction-to-immutable-infrastructure/). But we were using [Norton Ghost back in 2002](https://softpanorama.org/Windows/Ghosting/ghost_history.shtml) to do the same thing (imaging and restoring installs of OSes), and `dd` on Unix before that. Even without VMs, today a bunch of bare-metal servers can have identical configuration, restored from an *artifact* every time they reboot, with network configuration provided on the fly from BOOTP/DHCP, remote hands from IPMI, commands executed over SSH, and immutable artifacts installed via RPM.
+
+
+## Examples
+
+What are some concrete ways *Immutable Infrastructure* can replace *CM*?
+
+- VMs:
+  - Using *Configuration Management*:
+    - Say you want to deploy WordPress on a Linux VM with [Puppet](https://www.puppet.com/).
+      1. Deploy a Puppet server and set it up to serve files.
+      2. Make some Puppet configs that will install Linux packages, configure the OS, set up a start-up script for your app, run your app, and restart it when it stops.
+      3. Make some Puppet configs that will install a specific version of your app and create its config files, and edit the aforementioned startup script to override memory settings.
+      4. Also add Puppet configs to configure logrotate so your app doesn't fill up the disk.
+      5. Create an autoscaling group to deploy an instance for your app. Configure it to pass the configuration needed to pull the right Puppet configs, including any keys or other auto info needed for the Puppet server.
+      6. Deploy instance and wait for Puppet to download & install packages, configure the OS, configure the app, and start the app.
+      7. Three months later: fix the logrotate Puppet configs once your disks fill up and stop the app from working (or restarting)
+      8. Three months later: fix the app-start Puppet configs to detect a corrupted RPM database once Puppet fails to reload your app's configs because the Puppet agent is hung because it can't refresh packages because the RPM database index got corrupted.
+    - Rollback is as easy as:
+      1. Update the Puppet configs to pin a new version of the app
+      2. Issue a command over SSH to reload puppet on the instances (or wait 15 minutes and hope it happens automatically)
+      3. Puppet agent on the host pulls the new version of your app and configuration
+      4. Login to the host when the app doesn't start and find out that the new version of your app depends on new OS packages.
+      5. Edit Puppet configs to install newer dependencies with the newer version of the app.
+      6. Issue command to reload puppet on the instances.
+      7. Wait for the box to finish installing new packages, pull new version of your app, and run it.
+
+  - Using *Immutable Infrastructure*:
+    - Say you have a plain-old Linux VM you've already set up with WordPress. You test your site on it, and it works.
+      1. Create an autoscaling group. 
+      2. Snapshot the VM using [Packer](https://www.packer.io/).
+      3. Update the autoscaling group to use the AMI of the snapshot you just made.
+      4. Refresh the instances on the autoscaling group.
+    - If the server ever has a problem, just refresh the autoscaling group instances, and you'll have a brand new instance that works the same as the first one.
+    - Rollback is the same as deployment:
+      1. Update the autoscaling group with the AMI of the previous snapshot.
+      2. Refresh the instances on the autoscaling group.
+
+- Containers:
+  - Using *Configuration Management*:
+    - Deploying your app as a container with Puppet:
+      1. Do everything above that you did for the VM, but add the Docker OS package.
+      2. When the VM runs out of disk space from Docker's cache filling it up, login to the host and manually clear the cache.
+      3. Edit the Puppet configs to add a cron job to periodically clear out the Docker cache.
+      4. Run Puppet agent update on the host to apply the cron job changes.
+  - Using *Immutable Infrastructure*:
+    - Deploying your app as a container:
+      1. Create a load balancer.
+      2. Create a Docker container containing your application code and a web server.
+      3. Test your code in this container.
+      4. Deploy this container to a container orchestrator, like Kubernetes, Nomad, or AWS ECS.
+      5. Point the load balancer at the deployed container.
+      6. If the app ever fails or has an issue, just start a new container, pass the traffic to the new container, and kill the old container.
+    - Rollback is the same as deployment:
+      1. Deploy a new container using the last tagged container image
+      2. Point the load balancer at the new container
+      3. Kill the old container
 
 
 ## The Elephant in the Room
 
-Unfortunately, not everyone has gotten the picture yet. Cloud Computing can seem like a panacea for everyone's problems... But even the vanguard industry players fail to grasp the importance or utility of Immutable Infrastructure.
+*Immutable Infrastructure* is a transformational way to think about the operating of Systems. It provides stability, security, peace of mind, lowers cost, and makes automation simpler. But not everyone has fully adopted this practice. Cloud Computing can seem like a panacea for everyone's problems... But every single Cloud vendor has failed to adopt *Immutable Infrastructure* in their designs.
 
-Take AWS, for example. They developed a service called [AWS S3](https://en.wikipedia.org/wiki/Amazon_S3), which purports to be a simple way to store and retrieve blobs of data using an API. It sounds like a great idea; unlimited storage, high performance, and a consistent control interface? What's not to love! I mean, APIs!!!
+Take AWS for example. They developed a service called [AWS S3](https://en.wikipedia.org/wiki/Amazon_S3), which purports to be a simple way to store and retrieve blobs of data using an API. It sounds like a great idea; unlimited storage, high performance, and a consistent control interface? What's not to love! I mean, APIs!!!
 
 But the thing is, AWS S3 is not immutable. It may seem like it because you can control it using an API. But an API is just an interface, the way file i/o is an interface, or a network protocol, or a GUI. An API doesn't mean the System's state is immutable. You can change hundreds of different properties in an AWS S3 bucket, but there's no way to take an Immutable Artifact of a bucket, in a specific state, and re-apply it when its state changes.
 
 In order to deal with this problem, tools like Terraform came about, and were called "Cloud Orchestrators" (because it sounds cooler than "Cloud Configuration Management Tools"). Terraform was built to create an AWS S3 bucket, check its state, and try to re-apply the old state if it changes.
 
-But this introduces some familiar problems. We have to write code again, and maintain a tool. When we run the tool, sometimes it doesn't work or causes unknown bugs, and we have to fix it while the system is broken. And what's worse is, Terraform won't try to apply the correct System state if it's been changed by anything other than Terraform itself. So it's actually *less useful* than the older Configuration Management tools at doing what we want: fixing the System's state.
+But this introduces some familiar problems. We have to write code again, and maintain a tool. When we run the tool, sometimes it doesn't work or causes unknown bugs, and we have to fix it while the system is broken. And what's worse is, Terraform won't try to apply the correct System state if it's been changed by anything other than Terraform itself. So it's actually *less useful* than the older *CM* tools at doing what we want: fixing the System's state.
 
-Most Cloud services today are not immutable, the tools we have to deal with this are worse than Configuration Management tools, and only the developers of Cloud systems can solve this dilemma. They must design their Systems to enable Immutable operations, as they do on VMs, Containers, etc. Until then, we will have the same problems we had with Configuration Management, just with different names.
+Most Cloud services today are not immutable, the tools we have to deal with this are worse than *CM* tools, and only the developers of Cloud systems can solve this dilemma. They must design their Systems to enable Immutable operations, as they do on VMs, Containers, etc. Until then, we will have the same problems we had with *CM*, just with different names.
 
-In the mean time, we can attempt to move away from tools like Terraform. We can move back to libraries of common code that perform specific functions on multiple platforms, the way Configuration Management tools once did, and fix System state regardless of how it was changed.
+## Looking Forward
+
+In the mean time, we can attempt to move away from tools like Terraform. We can move back to libraries of common code that perform specific functions on multiple platforms, the way *CM* tools once did, and fix System state regardless of how it was changed.
 
 The tools we need mostly don't exist yet. They require a lot of engineering power, and it's very hard to move an entire industry in the right direction. Hopefully the Cloud Computing industry can learn the right lessons and move away from stateful, difficult to manage services, for the benefit of its users and society in general.
 
