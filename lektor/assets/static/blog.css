@@ -1,0 +1,20 @@
+:root {
+  --purple: rgb(115, 0, 209);
+}
+
+.reading-time {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.reading-time details {
+  position: absolute;
+  background: white;
+  z-index: 1;
+}
+
+.reading-time summary {
+  color: var(--purple);
+  font-weight: 600;
+}

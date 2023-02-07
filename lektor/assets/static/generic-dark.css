@@ -999,3 +999,12 @@ body {
     display: table-cell;
     vertical-align: middle;
 }
+
+/* add items for blog page count */
+
+.reading-time {
+  /*position: absolute;*/
+  display: inline-block;
+  cursor: pointer;
+}
+

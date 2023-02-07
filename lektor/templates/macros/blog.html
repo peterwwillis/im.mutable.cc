@@ -1,5 +1,5 @@
 {% macro render_blog_post(post, from_index=false) %}
-  <div class="blog-post">
+  <div class="blog-post" id="blog-post">
   {% if from_index %}
     <h1><a href="{{ post|url }}">{{ post.title }}</a></h1>
   {#
@@ -8,9 +8,12 @@
   #}
   {% endif %}
   <p class="meta">
-    {% if post.pub_date %}
-    (by <b>mutable.cc</b> on {{ post.pub_date }})
-    {% endif %}
+    <div class="reading-time"><details>
+      <summary>
+      {% if post.pub_date %} (by <b>mutable.cc</b> on {{ post.pub_date }}) | {% endif %}
+      <b>1 min</b> read
+      </summary><span></span>
+    </details></div>
     {% if post.youtube_id and post.youtube_title %}
     <br /> (listening to: <i>{{ post.youtube_title }}</i>) <br />
     <iframe width="560" height="315" src="https://www.youtube.com/embed/{{ post.youtube_id }}" title="{{ post.youtube_title }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -20,4 +23,26 @@
   </p>
   {{ post.body }}
   </div>
+  <script type="text/javascript">
+    const post = document.getElementById("blog-post");
+    const readingTimeSummary = document.querySelector(".reading-time summary");
+    const readingTimeDetails = document.querySelector(".reading-time details span");
+    const avgWordsPerMin = 238;
+    const bydate = "{% if post.pub_date %} (by <b>mutable.cc</b> on {{ post.pub_date }}) | {% endif %}"
+
+    setReadingTime();
+
+    function setReadingTime() {
+      let count = getWordCount();
+      let time = Math.ceil(count / avgWordsPerMin);
+
+      readingTimeSummary.innerHTML = bydate + "<b>" + time + " min</b> read";
+      readingTimeDetails.innerText =
+        count + " words read at " + avgWordsPerMin + " words per minute.";
+    }
+
+    function getWordCount() {
+      return post.innerText.match(/\w+/g).length;
+    }
+  </script>
 {% endmacro %}

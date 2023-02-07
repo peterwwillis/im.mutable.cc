@@ -1,5 +1,5 @@
 <!doctype html>
-
+<html lang="en">
 <meta charset="utf-8">
 
 <link id="generic-css-dark"  rel="stylesheet" type="text/css" href="{{ '/static/generic-dark.css'|url }}"/>
@@ -13,7 +13,7 @@
         <li{% if this._path == '/' %} class="active"{% endif
         %}><b><a href="{{ '/'|url }}">Welcome</a></b></li>
         {% for href, title in [
-          ['/x', 'Blog'],
+          ['/blog', 'Blog'],
           ['/projects', 'Projects'],
           ['/contact', 'Contact'],
           ['/about', 'About']
@@ -33,3 +33,4 @@
     &copy; Copyright 2022 by mutable.cc.
   </footer>
 </body>
+</html>

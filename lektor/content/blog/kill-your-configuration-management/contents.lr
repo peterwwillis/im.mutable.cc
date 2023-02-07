@@ -171,9 +171,14 @@ What are some concrete ways *Immutable Infrastructure* can replace *CM*?
       3. Kill the old container
 
 
+Now, you might say that a lot of the ease of using *Immutable Infrastructure* was the orchestration software (an autoscaling group, a container orchestrator). But the fact is those systems only abstracted away the starting/stopping of VMs or containers. We still didn't have to learn a DSL of code, maintain a *CM* System, or troubleshoot the mysterious failures of pet servers. Our cost and complexity goes down, and reliability goes up.
+
+*Immutable Infrastructure* is a transformational way to think about the operating of Systems. It provides stability, security, peace of mind, lowers cost, and makes automation simpler. But not everyone has fully adopted this practice.
+
+
 ## The Elephant in the Room
 
-*Immutable Infrastructure* is a transformational way to think about the operating of Systems. It provides stability, security, peace of mind, lowers cost, and makes automation simpler. But not everyone has fully adopted this practice. Cloud Computing can seem like a panacea for everyone's problems... But every single Cloud vendor has failed to adopt *Immutable Infrastructure* in their designs.
+Cloud Computing can seem like a panacea for everyone's problems... But every single Cloud vendor has failed to adopt *Immutable Infrastructure* in their designs.
 
 Take AWS for example. They developed a service called [AWS S3](https://en.wikipedia.org/wiki/Amazon_S3), which purports to be a simple way to store and retrieve blobs of data using an API. It sounds like a great idea; unlimited storage, high performance, and a consistent control interface? What's not to love! I mean, APIs!!!
 
