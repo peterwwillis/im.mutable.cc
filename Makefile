@@ -31,12 +31,17 @@ help:
 	@echo "  docker-lektor-server"
 	@echo "  docker-lektor-version-freeze"
 	@echo "  docker-build"
+	@echo "  docker-run"
 
 lektor-version-freeze:
 	cd "$(PROJECTDIR)" \
 	&& pip freeze > requirements.txt
 
-lektor-build:
+lektor-pip-install:
+	pip install -r requirements.txt
+
+lektor-build: lektor-pip-install
+	ls -la
 	cd "$(PROJECTDIR)" \
 	&& lektor build -v -O "$(OUTPUT)"
 
@@ -69,3 +74,6 @@ docker-build:
 	DOCKERFILE="$$(readlink -f Dockerfile)" \
 	&& docker build -t $(DOCKER_IMAGE) -f "$$DOCKERFILE" .
 
+docker-run:
+	set -eux ; \
+	$(DOCKER_RUN)
